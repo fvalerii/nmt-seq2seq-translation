@@ -19,7 +19,7 @@ The core objective was to move beyond simple classification and master the compl
 ## 🎯 Technical Architecture
 The system utilizes a dual-recurrent framework optimized for high-dimensional semantic mapping.
 
-## **1. The Encoder (Feature Extraction)**
+### **1. The Encoder (Feature Extraction)**
 - **Semantic Projection:** Utilizes a pre-trained **NNLM (Neural-Net Language Model)** embedding from TensorFlow Hub to project English tokens into a 128-dimensional latent space.
 - **Latent Bottleneck:** Employs a **512-unit LSTM layer** to compress the entire source sequence into a final hidden ($h$) and cell ($c$) state (the "Context Vector").
 - **Learned Boundaries:** Includes a custom layer with a trainable terminal embedding to signal sequence boundaries.
@@ -28,6 +28,9 @@ The system utilizes a dual-recurrent framework optimized for high-dimensional se
 - **State Seeding:** Initialized using the Encoder's final states, ensuring the generative process is grounded in the source context.
 - **Recurrent Unfolding:** A 512-unit LSTM layer that maintains temporal state across recursive time-steps.
 - **Vocabulary Mapping:** A final Dense layer that projects the LSTM outputs into logit scores across the German vocabulary.
+
+### **Masked Loss Function:**
+Implements a custom `SparseCategoricalCrossentropy` that utilizes a boolean mask to ignore zero-padding. This prevents the "gradient dilution" typically seen in variable-length sequence training and ensures the model optimizes for linguistic accuracy rather than padding prediction.
 
 ---
 
@@ -47,9 +50,51 @@ The model is evaluated using both quantitative and qualitative benchmarks:
 - **Perplexity:** Tracks the model's confidence in its probability distributions across the target vocabulary.
 - **Greedy Search Inference:** Qualitative analysis of the model's ability to handle unseen syntax through a recursive autoregressive feedback loop.
 
+---
+
+## 📊 Research Results
+
+### **Quantitative Evaluation**
+The model was evaluated on a held-out test set using Corpus BLEU (Bilingual Evaluation Understudy), measuring n-gram precision (1-4) between the hypothesis and reference.
+**Metric:** Corpus BLEU-4
+**Score:** [Insert Your Score Here]
+
 [Image showing N-gram overlap for BLEU score]
 
+### **Qualitative Samples**
+English Source,Human Reference,Model Translation
+"""I am happy.""","""Ich bin glücklich.""","""ich bin gluecklich"""
+"""The weather is nice.""","""Das Wetter ist schön.""","""das wetter ist schoen"""
+
 ---
+
+## 📈 Performance Analysis
+
+### **Training Metrics**
+![Loss Curve](results/loss_curve.png)
+*Figure 1: Masked Sparse Categorical Crossentropy over 20 epochs. The convergence of validation loss indicates robust generalization.*
+
+### **Model Architecture**
+
+graph LR
+    subgraph Encoder
+    A[English Input] --> B(Embedding)
+    B --> C[LSTM Layer]
+    end
+
+    C -->|Hidden + Cell States| D{Context Vector}
+
+    subgraph Decoder
+    D --> E[LSTM Layer]
+    E --> F(Dense Softmax)
+    F --> G[German Output]
+    end
+
+    G -.->|Feedback Loop| E
+
+*Figure 2: Sequence-to-Sequence framework with Latent Bottleneck and Recursive Inference.*
+
+--- 
 
 ## 📂 Project Deliverables
 - **[Jupyter Notebook](./notebooks/nmt_english_german_seq2seq.ipynb):** 
@@ -57,9 +102,10 @@ The model is evaluated using both quantitative and qualitative benchmarks:
 ---
 
 ## ⚙️ Execution Guide
+The notebook is configured for Automated Pipeline Integration. It automatically fetches the curated English-German corpus (provided by Imperial College) directly from Google Drive using the gdown utility. The dataset is based on the language dataset from ManyThings.org/anki, which consists of over 200,000 sentence pairs. To ensure efficient training on local or cloud-based GPU hardware, the pipeline is restricted to a 20,000-pair subset.
 
 ### **Option A: Colab Execution (Cloud)**
-The easiest way to run the study is via Google Colab. The notebook is pre-configured to handle data acquisition and environment preprocessing.
+The easiest way to run the study is via Google Colab.
 
 ### **Option B: Local Execution (WSL2/GPU)**
 Recommended for users with NVIDIA GPUs to leverage cuDNN acceleration.
@@ -80,13 +126,13 @@ conda env create -f environment.yml
 conda activate nmt_research
 ```
 ### *3. Run the Notebook**
-The notebook handles the acquisition of the &&ManyThings.org English-German corpus** (Tatoeba Project) automatically. Open the notebook in VS Code or Jupyter: `notebooks/nmt_english_german_seq2seq.ipynb`
+Open the notebook in VS Code or Jupyter: `notebooks/nmt_english_german_seq2seq.ipynb`
 
 ---
 
 ## 💻 Tech Stack
 - **Frameworks:** TensorFlow 2.x, Keras, TensorFlow Hub
-- **Libraries:** NumPy, Matplotlib, NLTK (for BLEU evaluation)
+- **Libraries:** NumPy, Matplotlib, NLTK (for BLEU evaluation), scikit-learn, gdown
 - **Architecture:** Long Short-Term Memory (LSTM), Encoder-Decoder, Transfer Learning
 
 ---
