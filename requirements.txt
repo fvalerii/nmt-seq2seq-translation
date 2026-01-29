@@ -1,0 +1,25 @@
+# --- Core Deep Learning & NLP Frameworks ---
+# Primary engine for Seq2Seq modeling
+tensorflow==2.19.0
+# Required for the English NNLM embedding layer
+tensorflow-hub>=0.16.1
+# Industry standard for BLEU score evaluation
+nltk>=3.8.1
+
+# --- Machine Learning Utilities ---
+# Used for data partitioning (train_test_split)
+scikit-learn>=1.3.0
+
+# --- Model Serialization ---
+# Required for saving/loading .h5 model files
+h5py==3.12.1
+
+# --- Data Processing & Mathematical Computing ---
+numpy>=1.26.0
+
+# --- Visualization & Analysis ---
+matplotlib>=3.7.0
+
+# --- Environment Support (VS Code / WSL2 / Jupyter) ---
+ipykernel
+notebook
