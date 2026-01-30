@@ -3,8 +3,8 @@
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fvalerii/nmt-seq2seq-translation/blob/main/notebooks/nmt_english_german_seq2seq.ipynb)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)
-![Imperial College London](https://img.shields.io/badge/Academic_Partner-Imperial_College_London-blue.svg)
-![BLEU SCore](https://img.shields.io/badge/BLEU_Score-17.32%-brightgreen)
+![Imperial College London](https://img.shields.io/badge/Academic_Partner-Imperial_College_London-blue)
+![BLEU Score](https://img.shields.io/badge/BLEU_Score-17.32-brightgreen)
 ![Status](https://img.shields.io/badge/Status-Completed-success.svg)
 
 ---
@@ -63,11 +63,14 @@ To transition from a 20,000 to a 200,000+ sample corpus, the following optimizat
 ---
 
 ## **📈 Final Performance Metrics**
-Metric,Result,Interpretation
-BLEU Score,17.32,Strong baseline performance with significant n-gram overlap.
-Validation Perplexity,5.35,High confidence in word prediction (branching factor < 6).
-Training Samples,"160,000",Robust exposure to bilingual syntax patterns.
-Batch Size,64,Balanced gradient stability with memory efficiency.
+Benchmark results obtained on a strictly isolated **20,000-sentence holdout set**:
+
+| Metric | Result | Interpretation |
+| :--- | :--- | :--- |
+| **BLEU Score** | **17.32** | Strong baseline performance with significant n-gram overlap. |
+| **Validation Perplexity** | **5.35** | High confidence in word prediction (branching factor < 6). |
+| **Training Samples** | 160,000 | Robust exposure to bilingual syntax patterns. |
+| **Batch Size** | 64 | Balanced gradient stability with memory efficiency. |
 
 ![Loss Perplexity Curves](images/loss_perplexity_curves.png)
 *Masked Sparse Categorical Crossentropy over 10 epochs. The convergence of validation loss indicates robust generalization.*
@@ -80,7 +83,7 @@ Batch Size,64,Balanced gradient stability with memory efficiency.
 ---
 
 ## **⚙️ Execution Guide**
-The notebook is configured for Automated Pipeline Integration. It automatically fetches the English-German corpus (provided by Imperial College) directly from Google Drive using the gdown utility. The dataset is based on the language dataset from ManyThings.org/anki, which consists of over 200,000 sentence pairs.
+The notebook is configured for Automated Pipeline Integration. It automatically fetches the English-German corpus (provided by Imperial College) directly from Google Drive using the gdown utility. The dataset is based on the language dataset from **ManyThings.org/anki**, which consists of over 200,000 sentence pairs.
 
 ### **Option A: Colab Execution (Cloud)**
 The easiest way to run the study is via Google Colab.
