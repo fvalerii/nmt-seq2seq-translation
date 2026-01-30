@@ -1,0 +1,98 @@
+# -----------------------------
+# Python
+# -----------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.pkl
+*.pickle
+
+# Virtual environments
+.env/
+.venv/
+env/
+venv/
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dll
+*.dylib
+
+# -----------------------------
+# Jupyter Notebooks
+# -----------------------------
+.ipynb_checkpoints/
+*.ipynb_convert/
+*.nbconvert/
+
+# --- TensorFlow & Model Governance ---
+# Keep the folder structure on GitHub, but ignore the large weight files
+ckps_best/*
+!ckps_best/.gitkeep
+
+# TensorFlow Hub modules
+tfhub_modules/
+
+# Safety net for common Keras/TF weight formats
+*.h5
+*.keras
+*.ckpt*
+
+# -----------------------------
+# Data files
+# -----------------------------
+data/
+*.mat
+*.csv
+*.tsv
+*.zip
+*.gz
+
+# Allow small sample data
+!data/sample_*.*
+!data/README.md
+
+# -----------------------------
+# Logs
+# -----------------------------
+logs/
+*.log
+
+# -----------------------------
+# OS / Editor files
+# -----------------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# PyCharm
+.idea/
+
+# -----------------------------
+# Cache
+# -----------------------------
+.cache/
+*.cache
+*.tmp
+tmp/
+temp/
+
+# -----------------------------
+# Build artifacts
+# -----------------------------
+build/
+dist/
+*.egg-info/
+*.egg
