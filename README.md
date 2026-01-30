@@ -1,81 +1,36 @@
-# 🌐 Neural-Translation-Seq2Seq: English-to-German Study
-### *Encoder-Decoder Architectures for Neural Machine Translation*
+# **🌐 Neural-Translation-Seq2Seq: English-to-German Study**
+### *Encoder-Decoder Architectures for Large-Scale Neural Machine Translation*
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fvalerii/nmt-seq2seq-translation/blob/main/notebooks/nmt_english_german_seq2seq.ipynb)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg)
 ![Imperial College London](https://img.shields.io/badge/Academic_Partner-Imperial_College_London-blue.svg)
-![BLEU SCore](https://img.shields.io/badge/BLEU_Score-Pending-brightgreen)
+![BLEU SCore](https://img.shields.io/badge/BLEU_Score-17.32%-brightgreen)
 ![Status](https://img.shields.io/badge/Status-Completed-success.svg)
 
 ---
 
-## 📋 Research Overview
-This project investigates the implementation of a Neural Machine Translation (NMT) system using a Sequence-to-Sequence (Seq2Seq) framework. Developed as a Capstone Research Study for the Imperial College London TensorFlow 2 Professional Certification, the study focuses on mapping latent semantic representations between English and German using deep recurrent neural networks.
+## **📋 Research Overview**
+This project investigates the implementation of a Neural Machine Translation (NMT) system using a Sequence-to-Sequence (Seq2Seq) framework. Developed for the Imperial College London TensorFlow 2 Professional Certification, the study focuses on mapping latent semantic representations between English and German.
 
-The core objective was to move beyond simple classification and master the complexities of variable-length sequence modeling, latent-space bottlenecks, and autoregressive inference.
+The project evolved from a 20,000-sample prototype into a production-ready pipeline trained on a massive corpus, achieving significant improvements in translation fluency and structural alignment.
 
 ---
 
-## 🎯 Technical Architecture
+## **🎯 Technical Architecture**
 The system utilizes a dual-recurrent framework optimized for high-dimensional semantic mapping.
 
-### **1. The Encoder (Feature Extraction)**
-- **Semantic Projection:** Utilizes a pre-trained **NNLM (Neural-Net Language Model)** embedding from TensorFlow Hub to project English tokens into a 128-dimensional latent space.
+### **1. Feature Extraction & Encoding**
+- **Transfer Learning:** Utilizes a pre-trained **NNLM (Neural-Net Language Model)** embedding from TensorFlow Hub to project English tokens into a 128-dimensional latent space.
 - **Latent Bottleneck:** Employs a **512-unit LSTM layer** to compress the entire source sequence into a final hidden ($h$) and cell ($c$) state (the "Context Vector").
-- **Learned Boundaries:** Includes a custom layer with a trainable terminal embedding to signal sequence boundaries.
+- **Orthogonal Initialization:** Used for all LSTM units to stabilize gradient flow across long sequences and prevent vanishing gradients.
 
-### **2. The Decoder (Generative Subnetwork)**
-- **State Seeding:** Initialized using the Encoder's final states, ensuring the generative process is grounded in the source context.
-- **Recurrent Unfolding:** A 512-unit LSTM layer that maintains temporal state across recursive time-steps.
-- **Vocabulary Mapping:** A final Dense layer that projects the LSTM outputs into logit scores across the German vocabulary.
+### **2. Generative Decoding**
+- **Vocabulary Capping:** The German vocabulary was strategically capped at 15,000 tokens to prioritize high-frequency linguistic structures and optimize GPU VRAM usage.
+- **Teacher Forcing:** Utilized during training to accelerate convergence by feeding ground-truth tokens back into the recurrent engine.
 
-### **Masked Loss Function:**
-Implements a custom `SparseCategoricalCrossentropy` that utilizes a boolean mask to ignore zero-padding. This prevents the "gradient dilution" typically seen in variable-length sequence training and ensures the model optimizes for linguistic accuracy rather than padding prediction.
+### **3. Model Architecture Diagram**
 
----
-
-## 🛠️ Optimization & Regularization Strategy
-To bridge the "Generalization Gap" and prevent memorization of the training set, several advanced techniques were implemented:
-
-* **Spatial & Recurrent Dropout:** Integrated $0.2$ dropout rates to prevent neuron co-dependency.
-* **Weight Decay:** Applied **L2 Regularization** ($0.01$) to LSTM kernels to prevent over-specialization.
-* **Loss Masking:** A custom masked cross-entropy loss to ignore padding tokens, ensuring the optimizer focuses strictly on linguistic structure.
-* **Early Stopping:** Utilized a patience-based monitor on validation loss to restore the "best" model weights.
-
----
-
-## 📈 Evaluation Metrics
-The model is evaluated using both quantitative and qualitative benchmarks:
-- **BLEU Score (Bilingual Evaluation Understudy):** Measures n-gram overlap between model predictions and human ground-truth translations.
-- **Perplexity:** Tracks the model's confidence in its probability distributions across the target vocabulary.
-- **Greedy Search Inference:** Qualitative analysis of the model's ability to handle unseen syntax through a recursive autoregressive feedback loop.
-
----
-
-## 📊 Research Results
-
-### **Quantitative Evaluation**
-The model was evaluated on a held-out test set using Corpus BLEU (Bilingual Evaluation Understudy), measuring n-gram precision (1-4) between the hypothesis and reference.
-**Metric:** Corpus BLEU-4
-**Score:** [Insert Your Score Here]
-
-[Image showing N-gram overlap for BLEU score]
-
-### **Qualitative Samples**
-English Source,Human Reference,Model Translation
-"""I am happy.""","""Ich bin glücklich.""","""ich bin gluecklich"""
-"""The weather is nice.""","""Das Wetter ist schön.""","""das wetter ist schoen"""
-
----
-
-## 📈 Performance Analysis
-
-### **Training Metrics**
-![Loss Curve](results/loss_curve.png)
-*Figure 1: Masked Sparse Categorical Crossentropy over 20 epochs. The convergence of validation loss indicates robust generalization.*
-
-### **Model Architecture**
-
+```mermaid
 graph LR
     subgraph Encoder
     A[English Input] --> B(Embedding)
@@ -91,18 +46,41 @@ graph LR
     end
 
     G -.->|Feedback Loop| E
+```
+*Figure: Sequence-to-Sequence framework with Latent Bottleneck and Recursive Inference.*
 
-*Figure 2: Sequence-to-Sequence framework with Latent Bottleneck and Recursive Inference.*
+---
+
+## **🚀 Large-Scale Engineering (200,000 Dataset)**
+To transition from a 20,000 to a 200,000+ sample corpus, the following optimizations were critical:
+
+- **Streaming Pipeline:** Implemented a `tf.data.Dataset` architecture with Asynchronous Prefetching (`tf.data.AUTOTUNE`) to ensure zero GPU starvation.
+
+- **Vectorized Padding:** Dynamic truncation and padding to a fixed length of 13 ensured tensor compatibility with the Functional API.
+
+- **Masked Loss:** Applied a custom Masked Sparse Categorical Cross-Entropy loss to ensure that padding tokens did not dilute the gradient signal.
+
+---
+
+## **📈 Final Performance Metrics**
+Metric,Result,Interpretation
+BLEU Score,17.32,Strong baseline performance with significant n-gram overlap.
+Validation Perplexity,5.35,High confidence in word prediction (branching factor < 6).
+Training Samples,"160,000",Robust exposure to bilingual syntax patterns.
+Batch Size,64,Balanced gradient stability with memory efficiency.
+
+![Loss Perplexity Curves](images/loss_perplexity_curves.png)
+*Masked Sparse Categorical Crossentropy over 10 epochs. The convergence of validation loss indicates robust generalization.*
 
 --- 
 
-## 📂 Project Deliverables
+## **📂 Project Deliverables**
 - **[Jupyter Notebook](./notebooks/nmt_english_german_seq2seq.ipynb):** 
 
 ---
 
-## ⚙️ Execution Guide
-The notebook is configured for Automated Pipeline Integration. It automatically fetches the curated English-German corpus (provided by Imperial College) directly from Google Drive using the gdown utility. The dataset is based on the language dataset from ManyThings.org/anki, which consists of over 200,000 sentence pairs. To ensure efficient training on local or cloud-based GPU hardware, the pipeline is restricted to a 20,000-pair subset.
+## **⚙️ Execution Guide**
+The notebook is configured for Automated Pipeline Integration. It automatically fetches the English-German corpus (provided by Imperial College) directly from Google Drive using the gdown utility. The dataset is based on the language dataset from ManyThings.org/anki, which consists of over 200,000 sentence pairs.
 
 ### **Option A: Colab Execution (Cloud)**
 The easiest way to run the study is via Google Colab.
@@ -130,18 +108,15 @@ Open the notebook in VS Code or Jupyter: `notebooks/nmt_english_german_seq2seq.i
 
 ---
 
-## 💻 Tech Stack
+## **💻 Tech Stack**
 - **Frameworks:** TensorFlow 2.x, Keras, TensorFlow Hub
-- **Libraries:** NumPy, Matplotlib, NLTK (for BLEU evaluation), scikit-learn, gdown
-- **Architecture:** Long Short-Term Memory (LSTM), Encoder-Decoder, Transfer Learning
+- **Libraries:** NumPy, Matplotlib, NLTK (BLEU), scikit-learn
+- **Execution:** Optimized for NVIDIA GPU acceleration
 
 ---
 
-## 🎓 Certification & Academic Context
-This project was developed as a **Capstone Research Study** for the **"TensorFlow 2 for Deep Learning" Professional Certification** by **Imperial College London** (via Coursera).
-
-* **Objective:** Demonstrate mastery of the TensorFlow 2 ecosystem, including custom training loops, masked loss functions, and Seq2Seq modeling.
-* **Status:** Verified and Peer-Reviewed.
+## **🎓 Academic Context**
+This project serves as Capstone Research Study for the "TensorFlow 2 for Deep Learning" Professional Certification by Imperial College London. It demonstrates mastery of custom training loops, model subclassing, and complex NLP data engineering.
 
 ---
 
